@@ -1,15 +1,19 @@
+"""create local queue & send hello world"""
 #!/usr/bin/env python
 import pika
+# establish a CONNECTION with RabbitMQ
+CONNECTION = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+CHANNEL = CONNECTION.channel()
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
-channel = connection.channel()
+# create a queue named 'hello'
+CHANNEL.queue_declare(queue='hello')
 
-
-channel.queue_declare(queue='hello')
-
-channel.basic_publish(exchange='',
+# use the default exchange
+CHANNEL.basic_publish(exchange='',
+                      # specify the queue to which to publish
                       routing_key='hello',
+                      # specify the text to send
                       body='Hello World!')
-print(" [x] Sent 'Hello World!'")
-connection.close()
+print " [x] Sent 'Hello World!'"
+# close the CONNECTION
+CONNECTION.close()
