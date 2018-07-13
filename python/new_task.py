@@ -1,19 +1,26 @@
+"""send input to be executed by RabbitMQ"""
 #!/usr/bin/env python
-import pika
 import sys
+import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
-channel = connection.channel()
+# establish a connection with RabbitMQ
+CONNECTION = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+CHANNEL = CONNECTION.channel()
 
-channel.queue_declare(queue='task_queue', durable=True)
+# create a queue called task_queue; mark queue & messages as durable
+CHANNEL.queue_declare(queue='task_queue', durable=True)
 
-message = ' '.join(sys.argv[1:]) or "Hello World!"
-channel.basic_publish(exchange='',
+# for message paste arguments into string; if they do not exist, use hello world
+MESSAGE = ' '.join(sys.argv[1:]) or "Hello World!"
+
+CHANNEL.basic_publish(exchange='',
+                      # specify the queue to which to publish
                       routing_key='task_queue',
-                      body=message,
+                      # specify the text to send
+                      body=MESSAGE,
+                      # use persistent delivery_mode property
                       properties=pika.BasicProperties(
-                         delivery_mode = 2, # make message persistent
+                          delivery_mode=2, # make message persistent
                       ))
-print(" [x] Sent %r" % message)
-connection.close()
+print " [x] Sent %r" % MESSAGE
+CONNECTION.close()

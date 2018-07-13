@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 import pika
 
-# establish a CONNECTION with RabbitMQ
+# establish a connection with RabbitMQ
 CONNECTION = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 CHANNEL = CONNECTION.channel()
 
