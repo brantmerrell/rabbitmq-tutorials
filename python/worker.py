@@ -3,6 +3,7 @@
 import time
 import pika
 
+# establish a connection with RabbitMQ
 CONNECTION = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 CHANNEL = CONNECTION.channel()
 
@@ -14,13 +15,15 @@ def rename_fun(chan, method, properties, body):
     """subscribe a callback function to..."""
     print properties
     print " [x] Received %r" % body
-    # assign task
+    # assign task responsive to 'body' input
     time.sleep(body.count(b'.'))
     print " [x] Done"
     chan.basic_ack(delivery_tag=method.delivery_tag)
+
 # limit simultaneous task count to 1
 CHANNEL.basic_qos(prefetch_count=1)
-# set RabbitMQ to send messages from queue to (callback) function
+
+# set RabbitMQ channel to consume messages with function
 CHANNEL.basic_consume(rename_fun,
                       queue='task_queue')
 

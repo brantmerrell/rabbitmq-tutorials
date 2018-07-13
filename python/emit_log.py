@@ -1,17 +1,20 @@
 #!/usr/bin/env python
-import pika
+"""emit"""
 import sys
+import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost'))
-channel = connection.channel()
+# establish a connection with RabbitMQ
+CONNECTION = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+CHANNEL = CONNECTION.channel()
 
-channel.exchange_declare(exchange='logs',
+# give the exchange a name consistent with receive_logs.py
+CHANNEL.exchange_declare(exchange='logs',
+                         #
                          exchange_type='fanout')
 
-message = ' '.join(sys.argv[1:]) or "info: Hello World!"
-channel.basic_publish(exchange='logs',
+MESSAGE = ' '.join(sys.argv[1:]) or "info: Hello World!"
+CHANNEL.basic_publish(exchange='logs',
                       routing_key='',
-                      body=message)
-print(" [x] Sent %r" % message)
-connection.close()
+                      body=MESSAGE)
+print " [x] Sent %r" % MESSAGE
+CONNECTION.close()
